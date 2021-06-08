@@ -25,6 +25,6 @@ iPhone 11, 11 Pro and 11 Pro Max.
 - new design
 - changing position of rows
 ## Conclusion 
-The project was tough, and it was challenging, there were parts when I didn't  even understand what's happening and why(  getDocumentsDirectory() )
-I'm finding this project helpful to understand basics of working with Collection view and view cells.
-Look forward to get back and make this app even better. 
+The project was tough, and it was challenging, there were parts when I didn't  even understand what's happening and why(  getDocumentsDirectory()).  
+I'm finding this project helpful to understand basics of working with Collection view and view cells.  
+Look forward to get back and make this app even better.     
