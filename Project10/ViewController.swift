@@ -10,13 +10,19 @@ import UIKit
 class ViewController: UICollectionViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate {
 
     
-    var people = [Person]()
+    var people = [Person]() //save with nscoder.
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewPerson))
         
+        if let savedPeople = UserDefaults.standard.object(forKey: "people") as? Data{
+            if let decodedPeople = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(savedPeople) as? [Person] {
+                people = decodedPeople
+            }
+            
+        }
     }
     
     @objc func addNewPerson(){
@@ -31,6 +37,7 @@ class ViewController: UICollectionViewController,UIImagePickerControllerDelegate
         picker.delegate = self
         present(picker, animated: true)
     }
+    
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return people.count
         
@@ -50,6 +57,7 @@ class ViewController: UICollectionViewController,UIImagePickerControllerDelegate
         cell.layer.cornerRadius = 7
         return cell
     }
+    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
         guard let image = info[.editedImage] as? UIImage else { return }
@@ -63,17 +71,20 @@ class ViewController: UICollectionViewController,UIImagePickerControllerDelegate
         }
         let person = Person(image: imageName, name: "unnown")
         people.append(person)
+        save()
         collectionView.reloadData()
         
         dismiss(animated: true)
         
     }
+    
     func getDocumentDirectory()->URL{
         
         let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         
         return path[0]
     }
+    
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let person = people[indexPath.item]
         
@@ -82,23 +93,23 @@ class ViewController: UICollectionViewController,UIImagePickerControllerDelegate
         ac.addAction(UIAlertAction(title: "rename", style: .default, handler: {  [weak self, weak ac] (UIAlertAction) in
             guard let newName = ac?.textFields?[0].text else { return }
             person.name = newName
+            self?.save()
             self?.collectionView.reloadData()
         }))
         ac.addAction(UIAlertAction(title: "delite", style: .default, handler: {  [weak self] action in
             self?.people.remove(at: indexPath.item)
+            self?.save()
             collectionView.reloadData()
         }))
         
-//        ac.addAction(UIAlertAction(title: "OK" , style: .default){
-//            [weak self, weak ac] action in
-//            guard let newName = ac?.textFields?[0].text else { return }
-//            person.name = newName
-//            self?.collectionView.reloadData()
-//        })
-
         ac.addAction(UIAlertAction(title: "cance", style: .cancel))
         present(ac, animated: true)
     }
 
+    func save(){
+        if let savedData = try? NSKeyedArchiver.archivedData(withRootObject: people, requiringSecureCoding: false){
+            UserDefaults.standard.set(savedData, forKey: "people")
+        }
+    }
 }
 
